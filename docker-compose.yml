@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    command: npm run start  # TypeScript のビルド後の実行
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/dist:/app/dist  # TypeScript のコンパイル後のコードをマウント
+
+  frontend:
+    build: ./frontend
+    command: npm start  # Reactアプリを起動
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  mysql:
+    image: mysql:8
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
